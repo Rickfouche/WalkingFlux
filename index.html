@@ -59,20 +59,14 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 2;"
+        environment="preset: none; lighting: physical; background: none; envMap: #hdriMap; intensity: 2;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
+          <!-- Use .jpg instead of .hdr if needed -->
           <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
 
-        <a-light
-          type="directional"
-          color="#FFF"
-          intensity="1"
-          position="-1 1 2"
-          shadow
-        ></a-light>
         <a-camera
           position="0 0 0"
           look-controls="enabled: false"
@@ -105,7 +99,7 @@
 
         const hideLoader = () => {
           loader.style.opacity = "0";
-          setTimeout(() => (loader.style.display = "none"), 500);
+          setTimeout(() => loader.style.display = "none", 500);
         };
 
         if (scene.hasLoaded) {
@@ -116,23 +110,12 @@
 
         // ✅ Reflective Chrome Material Fix
         flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying chrome material properties.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
-              console.log("Processing mesh:", node.name);
-              // Ensure the material is a PBRMaterial (like MeshStandardMaterial)
-              if (node.material.isMeshStandardMaterial) {
-                node.material.envMapIntensity = 2; // Increase intensity for stronger reflections
-                node.material.metalness = 1.0; // Fully metallic
-                node.material.roughness = 0.05; // Very smooth, mirror-like surface
-                node.material.needsUpdate = true;
-                console.log("Applied chrome properties to", node.name);
-              } else {
-                console.warn(
-                  "Material is not MeshStandardMaterial, cannot apply PBR properties:",
-                  node.material.type
-                );
-              }
+              node.material.envMapIntensity = 2;
+              node.material.metalness = 1.0;
+              node.material.roughness = 0.1;
+              node.material.needsUpdate = true;
             }
           });
         });
@@ -155,3 +138,4 @@
     </script>
   </body>
 </html>
+
