@@ -5,9 +5,7 @@
     <title>Flux.001 — Mirrorborn AR</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
@@ -15,13 +13,11 @@
         margin: 0;
         overflow: hidden;
       }
-
       .ar-scene-container {
         width: 100vw;
         height: 100vh;
         position: relative;
       }
-
       #tap-catcher {
         position: fixed;
         top: 0;
@@ -31,7 +27,6 @@
         z-index: 999;
         display: none;
       }
-
       #loader {
         position: fixed;
         top: 0;
@@ -64,13 +59,11 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        
-        environment="preset: none; lighting: physical; background: none; envMap: #hdriMap;" 
+        environment="preset: none; lighting: physical; background: none; envMap: #hdriMap;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
-
-          <a-asset-item id="hdriMap" src="textures/qwantani_moonrise_4k.exr"></a-asset-item>
+          <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
 
         <a-camera
@@ -81,13 +74,15 @@
         ></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-         <a-entity
-  id="flux"
-  gltf-model="#fluxModel"
-  position="0 0 0"
-  scale="0.5 0.5 0.5"
-  animation-mixer="clip: *; loop: repeat; play-all: true;" shadow
-></a-entity> </a-entity>
+          <a-entity
+            id="flux"
+            gltf-model="#fluxModel"
+            position="0 0 0"
+            scale="0.5 0.5 0.5"
+            animation-mixer="clip: *; loop: repeat; play-all: true;"
+            shadow
+          ></a-entity>
+        </a-entity>
       </a-scene>
     </div>
 
@@ -112,7 +107,6 @@
           scene.addEventListener("loaded", hideLoader);
         }
 
-        // --- MODEL LOADED EVENT (Primary animation trigger) ---
         flux.addEventListener("model-loaded", () => {
           console.log("🧸 Flux model loaded. Triggering animation.");
           flux.setAttribute("animation-mixer", {
@@ -121,17 +115,13 @@
           });
         });
 
-        // --- TARGET FOUND/LOST EVENTS (for visibility/interactivity) ---
         target.addEventListener("targetFound", () => {
           console.log("✅ Target Found — show Flux + interactivity");
-          // Animation is now triggered by model-loaded, not here
           tapCatcher.style.display = "block";
         });
 
         target.addEventListener("targetLost", () => {
           console.log("❌ Target Lost — hide interactivity");
-          // Optionally, pause animation here if you want it to stop when target is lost
-          // flux.setAttribute("animation-mixer", { clip: "1.", loop: "repeat", paused: true });
           tapCatcher.style.display = "none";
         });
 
