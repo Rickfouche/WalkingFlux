@@ -60,12 +60,19 @@
         device-orientation-permission-ui="enabled: false"
         embedded
         environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 2;"
-        >
+      >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
           <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
 
+        <a-light
+          type="directional"
+          color="#FFF"
+          intensity="1"
+          position="-1 1 2"
+          shadow
+        ></a-light>
         <a-camera
           position="0 0 0"
           look-controls="enabled: false"
@@ -121,7 +128,10 @@
                 node.material.needsUpdate = true;
                 console.log("Applied chrome properties to", node.name);
               } else {
-                console.warn("Material is not MeshStandardMaterial, cannot apply PBR properties:", node.material.type);
+                console.warn(
+                  "Material is not MeshStandardMaterial, cannot apply PBR properties:",
+                  node.material.type
+                );
               }
             }
           });
