@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Neon AR Cat Loop</title>
+
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      .ar-scene-container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+
+      #tap-catcher {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999;
+        display: none;
+      }
+
+      #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: sans-serif;
+        font-size: 1.2rem;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 🚪✨ Front Loader -->
+    <div id="loader">
+      <div id="loader-text">🚪✨ Loading AR Experience...</div>
+    </div>
+
+    <!-- AR Experience -->
+    <div class="ar-scene-container">
+      <a-scene
+        mindar-image="imageTargetSrc: https://rickfouche.github.io/PapaJazz/targets/JazzCat.mind;"
+        color-space="sRGB"
+        renderer="colorManagement: true, physicallyCorrectLights"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+      >
+        <a-assets>
+          <video
+            id="catVideo"
+            src="mp4/Catloop.mp4"
+            preload="auto"
+            loop
+            muted
+            crossorigin="anonymous"
+            playsinline
+          ></video>
+        </a-assets>
+
+        <a-camera
+          position="0 0 0"
+          look-controls="enabled: false"
+          raycaster="objects: .clickable"
+          cursor="fuse: false; rayOrigin: mouse;"
+        ></a-camera>
+
+        <!-- Display video on target scan -->
+        <a-entity mindar-image-target="targetIndex: 0">
+          <a-video
+            src="#catVideo"
+            width="1.5"
+            height="1"
+            position="0 0 0"
+            autoplay
+            loop
+            muted
+            playsinline
+          ></a-video>
+        </a-entity>
+      </a-scene>
+    </div>
+
+    <!-- Click redirect layer -->
+    <div id="tap-catcher"></div>
+
+    <!-- Logic for loader + interactivity -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const scene = document.querySelector("a-scene");
+        const loader = document.getElementById("loader");
+
+        const hideLoader = () => {
+          loader.style.opacity = "0";
+          setTimeout(() => loader.style.display = "none", 500);
+        };
+
+        if (scene.hasLoaded) {
+          hideLoader();
+        } else {
+          scene.addEventListener("loaded", hideLoader);
+        }
+      });
+
+      const target = document.querySelector("[mindar-image-target]");
+      const tapCatcher = document.getElementById("tap-catcher");
+      const video = document.getElementById("catVideo");
+
+      target.addEventListener("targetFound", () => {
+        console.log("✅ Target Found — show link + play video");
+        tapCatcher.style.display = "block";
+        video.play().catch((err) => {
+          console.warn("⛔ Video play blocked:", err);
+        });
+      });
+
+      target.addEventListener("targetLost", () => {
+        console.log("❌ Target Lost — pause video");
+        tapCatcher.style.display = "none";
+        video.pause();
+      });
+
+      tapCatcher.addEventListener("click", () => {
+        window.location.href = "https://neondoorway.com";
+      });
+    </script>
+  </body>
+</html>
+
+
+
+
