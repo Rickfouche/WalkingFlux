@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Neon AR Cat Loop</title>
+    <title>Flux.001 — Mirrorborn</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -51,28 +51,21 @@
   <body>
     <!-- 🚪✨ Front Loader -->
     <div id="loader">
-      <div id="loader-text">🚪✨ Loading AR Experience...</div>
+      <div id="loader-text">🚪✨ Loading Chrome Flux...</div>
     </div>
 
     <!-- AR Experience -->
     <div class="ar-scene-container">
       <a-scene
-        mindar-image="imageTargetSrc: https://rickfouche.github.io/PapaJazz/targets/JazzCat.mind;"
+        mindar-image="imageTargetSrc: targets/NDCard.mind"
         color-space="sRGB"
         renderer="colorManagement: true, physicallyCorrectLights"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
+        embedded
       >
         <a-assets>
-          <video
-            id="catVideo"
-            src="mp4/Catloop.mp4"
-            preload="auto"
-            loop
-            muted
-            crossorigin="anonymous"
-            playsinline
-          ></video>
+          <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
         </a-assets>
 
         <a-camera
@@ -82,18 +75,15 @@
           cursor="fuse: false; rayOrigin: mouse;"
         ></a-camera>
 
-        <!-- Display video on target scan -->
+        <!-- Display 3D model on target scan -->
         <a-entity mindar-image-target="targetIndex: 0">
-          <a-video
-            src="#catVideo"
-            width="1.5"
-            height="1"
+          <a-entity
+            id="flux"
+            gltf-model="#fluxModel"
             position="0 0 0"
-            autoplay
-            loop
-            muted
-            playsinline
-          ></a-video>
+            scale="0.5 0.5 0.5"
+            animation-mixer
+          ></a-entity>
         </a-entity>
       </a-scene>
     </div>
@@ -101,7 +91,7 @@
     <!-- Click redirect layer -->
     <div id="tap-catcher"></div>
 
-    <!-- Logic for loader + interactivity -->
+    <!-- Loader logic -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const scene = document.querySelector("a-scene");
@@ -121,28 +111,24 @@
 
       const target = document.querySelector("[mindar-image-target]");
       const tapCatcher = document.getElementById("tap-catcher");
-      const video = document.getElementById("catVideo");
 
       target.addEventListener("targetFound", () => {
-        console.log("✅ Target Found — show link + play video");
+        console.log("✅ Target Found — show Flux + interactivity");
         tapCatcher.style.display = "block";
-        video.play().catch((err) => {
-          console.warn("⛔ Video play blocked:", err);
-        });
       });
 
       target.addEventListener("targetLost", () => {
-        console.log("❌ Target Lost — pause video");
+        console.log("❌ Target Lost — hide interactivity");
         tapCatcher.style.display = "none";
-        video.pause();
       });
 
       tapCatcher.addEventListener("click", () => {
-        window.location.href = "https://neondoorway.com";
+        window.location.href = "https://neondoorway.com/mirrorborn";
       });
     </script>
   </body>
 </html>
+
 
 
 
