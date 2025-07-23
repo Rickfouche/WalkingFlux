@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR</title>
+    <title>Flux.001 — Mirrorborn AR - MAX BRIGHTNESS</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
@@ -59,7 +59,7 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 2;"
+        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 10;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
@@ -69,14 +69,18 @@
         <a-light
           type="directional"
           color="#FFF"
-          intensity="1.5" position="-1 1 2"
-          shadow
+          intensity="5" position="-1 2 3" shadow
         ></a-light>
         <a-light
-          type="ambient"
-          color="#888"
-          intensity="0.5"
+          type="directional"
+          color="#FFF"
+          intensity="3"
+          position="1 -2 -3" shadow
         ></a-light>
+
+        <a-light
+          type="ambient"
+          color="#FFF" intensity="1.5" ></a-light>
 
 
         <a-camera
@@ -103,7 +107,7 @@
 
     <script>
       window.addEventListener("DOMContentLoaded", () => {
-        const sceneEl = document.querySelector("a-scene"); // Renamed to avoid conflict with Three.js scene object
+        const sceneEl = document.querySelector("a-scene");
         const loader = document.getElementById("loader");
         const flux = document.querySelector("#flux");
         const target = document.querySelector("[mindar-image-target]");
@@ -120,24 +124,33 @@
           sceneEl.addEventListener("loaded", hideLoader);
         }
 
-        // ✅ Reflective Chrome Fix — overrides baked Blender materials
         flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying chrome material properties.");
+          console.log("Flux model loaded. Applying MAX chrome material properties.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
               console.log("Processing mesh:", node.name, "Material type:", node.material.type);
               if (node.material.isMeshStandardMaterial) {
-                node.material.envMapIntensity = 2; // Keep at 2 for stronger reflections
+                // MAX MATERIAL REFLECTION INTENSITY
+                node.material.envMapIntensity = 5; // Increased significantly
+
+                // MAX METALNESS & MIN ROUGHNESS FOR PURE MIRROR CHROME
                 node.material.metalness = 1.0;
-                node.material.roughness = 0.05; // Make it very shiny
+                node.material.roughness = 0.01; // Closer to 0 for pure mirror
+
+                // MAX EMISSIVE BRIGHTNESS: Make it self-luminous
                 node.material.color.set("white"); // Base color for metallic, often white or gray
+                node.material.emissive.set("white"); // Pure white glow
+                node.material.emissiveIntensity = 2; // Very strong self-illumination
+
                 node.material.needsUpdate = true;
                 console.log(
-                  "Applied chrome properties to",
+                  "Applied MAX chrome properties to",
                   node.name,
                   "Metalness:", node.material.metalness,
                   "Roughness:", node.material.roughness,
                   "EnvMapIntensity:", node.material.envMapIntensity,
+                  "Emissive Color:", node.material.emissive.getHexString(),
+                  "Emissive Intensity:", node.material.emissiveIntensity,
                   "Has envMap (via JS check):", !!node.material.envMap
                 );
               } else {
@@ -145,14 +158,11 @@
                   "Material is not MeshStandardMaterial, cannot apply PBR properties:",
                   node.material.type
                 );
-                // If it's not a MeshStandardMaterial, this is a problem.
-                // Could be a BasicMaterial or other non-PBR material from the GLB.
               }
             }
           });
         });
 
-        // Interactivity: Show/Hide tap area
         target.addEventListener("targetFound", () => {
           console.log("✅ Target Found — show Flux + interactivity");
           tapCatcher.style.display = "block";
@@ -170,4 +180,3 @@
     </script>
   </body>
 </html>
-
