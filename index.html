@@ -59,12 +59,25 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="preset: none; lighting: physical; background: none; envMap: #hdriMap; intensity: 2;"
+        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 2;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
           <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
+
+        <a-light
+          type="directional"
+          color="#FFF"
+          intensity="1.5" position="-1 1 2"
+          shadow
+        ></a-light>
+        <a-light
+          type="ambient"
+          color="#888"
+          intensity="0.5"
+        ></a-light>
+
 
         <a-camera
           position="0 0 0"
@@ -80,7 +93,6 @@
             position="0 0 0"
             scale="0.5 0.5 0.5"
             animation-mixer="clip: 1.; loop: repeat; play-all: true;"
-            material="metalness: 1; roughness: 0.1; color: white;"
             shadow
           ></a-entity>
         </a-entity>
@@ -91,7 +103,7 @@
 
     <script>
       window.addEventListener("DOMContentLoaded", () => {
-        const scene = document.querySelector("a-scene");
+        const sceneEl = document.querySelector("a-scene"); // Renamed to avoid conflict with Three.js scene object
         const loader = document.getElementById("loader");
         const flux = document.querySelector("#flux");
         const target = document.querySelector("[mindar-image-target]");
@@ -102,21 +114,40 @@
           setTimeout(() => loader.style.display = "none", 500);
         };
 
-        if (scene.hasLoaded) {
+        if (sceneEl.hasLoaded) {
           hideLoader();
         } else {
-          scene.addEventListener("loaded", hideLoader);
+          sceneEl.addEventListener("loaded", hideLoader);
         }
 
         // ✅ Reflective Chrome Fix — overrides baked Blender materials
         flux.addEventListener("model-loaded", () => {
+          console.log("Flux model loaded. Applying chrome material properties.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
-              node.material.envMapIntensity = 2;
-              node.material.metalness = 1.0;
-              node.material.roughness = 0.1;
-              node.material.color.set("white");
-              node.material.needsUpdate = true;
+              console.log("Processing mesh:", node.name, "Material type:", node.material.type);
+              if (node.material.isMeshStandardMaterial) {
+                node.material.envMapIntensity = 2; // Keep at 2 for stronger reflections
+                node.material.metalness = 1.0;
+                node.material.roughness = 0.05; // Make it very shiny
+                node.material.color.set("white"); // Base color for metallic, often white or gray
+                node.material.needsUpdate = true;
+                console.log(
+                  "Applied chrome properties to",
+                  node.name,
+                  "Metalness:", node.material.metalness,
+                  "Roughness:", node.material.roughness,
+                  "EnvMapIntensity:", node.material.envMapIntensity,
+                  "Has envMap (via JS check):", !!node.material.envMap
+                );
+              } else {
+                console.warn(
+                  "Material is not MeshStandardMaterial, cannot apply PBR properties:",
+                  node.material.type
+                );
+                // If it's not a MeshStandardMaterial, this is a problem.
+                // Could be a BasicMaterial or other non-PBR material from the GLB.
+              }
             }
           });
         });
@@ -139,5 +170,4 @@
     </script>
   </body>
 </html>
-
 
