@@ -63,8 +63,7 @@
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
-          <!-- Use .jpg instead of .hdr if needed -->
-          <a-asset-item id="hdriMap" src="textures/converted_hdri.jpg"></a-asset-item>
+          <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
 
         <a-camera
@@ -81,6 +80,7 @@
             position="0 0 0"
             scale="0.5 0.5 0.5"
             animation-mixer="clip: 1.; loop: repeat; play-all: true;"
+            material="metalness: 1; roughness: 0.1; color: white;"
             shadow
           ></a-entity>
         </a-entity>
@@ -108,19 +108,20 @@
           scene.addEventListener("loaded", hideLoader);
         }
 
-        // ✅ Reflective Chrome Material Fix
+        // ✅ Reflective Chrome Fix — overrides baked Blender materials
         flux.addEventListener("model-loaded", () => {
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
               node.material.envMapIntensity = 2;
               node.material.metalness = 1.0;
               node.material.roughness = 0.1;
+              node.material.color.set("white");
               node.material.needsUpdate = true;
             }
           });
         });
 
-        // Target visibility control
+        // Interactivity: Show/Hide tap area
         target.addEventListener("targetFound", () => {
           console.log("✅ Target Found — show Flux + interactivity");
           tapCatcher.style.display = "block";
@@ -138,4 +139,5 @@
     </script>
   </body>
 </html>
+
 
