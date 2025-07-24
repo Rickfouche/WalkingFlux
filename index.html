@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR - SIGNIFICANT REDUCTION</title>
+    <title>Flux.001 — Mirrorborn AR - Max External Brightness, No Emissive</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
@@ -59,7 +59,7 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 5.8;"
+        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 10;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
@@ -69,14 +69,14 @@
         <a-light
           type="directional"
           color="#FFF"
-          intensity="2.9"
+          intensity="5"
           position="-1 2 3"
           shadow
         ></a-light>
         <a-light
           type="directional"
           color="#FFF"
-          intensity="1.8"
+          intensity="3"
           position="1 -2 -3"
           shadow
         ></a-light>
@@ -84,7 +84,7 @@
         <a-light
           type="ambient"
           color="#FFF"
-          intensity="0.9"
+          intensity="1.5"
         ></a-light>
 
 
@@ -130,22 +130,23 @@
         }
 
         flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying brightness further reduced by 20%.");
+          console.log("Flux model loaded. Applying MAX EXTERNAL BRIGHTNESS, NO EMISSIVE.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
               console.log("Processing mesh:", node.name, "Material type:", node.material.type);
               if (node.material.isMeshStandardMaterial) {
-                // MATERIAL REFLECTION INTENSITY: Reduced by another 20% (3.6 * 0.8 = 2.88)
-                node.material.envMapIntensity = 2.9;
+                // MAX MATERIAL REFLECTION INTENSITY
+                node.material.envMapIntensity = 5;
 
+                // PURE MIRROR CHROME
                 node.material.metalness = 1.0;
-                node.material.roughness = 0.01; // Keeping it very low for sharp chrome
+                node.material.roughness = 0.01;
 
-                node.material.color.set("white");
+                node.material.color.set("white"); // Base color for metallic
 
-                // EMISSIVE BRIGHTNESS: Reduced by another 20% (1.4 * 0.8 = 1.12)
-                node.material.emissive.set("white");
-                node.material.emissiveIntensity = 1.1;
+                // EMISSIVE BRIGHTNESS: ZEROED OUT FOR TRUE CHROME
+                node.material.emissive.set("black"); // Ensure emissive color is black
+                node.material.emissiveIntensity = 0; // No self-illumination
 
                 node.material.needsUpdate = true;
                 console.log(
