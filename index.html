@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR - Chrome HDRI Fix</title>
+    <title>Flux.001 — Mirrorborn AR - Fighting Onyx Black</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
@@ -55,21 +55,45 @@
       <a-scene
         mindar-image="imageTargetSrc: targets/JazzCat.mind;"
         color-space="sRGB"
-        renderer="colorManagement: true; physicallyCorrectLights: true; toneMapping: ACESFilmic"
+        renderer="colorManagement: true, physicallyCorrectLights: true, toneMapping: ACESFilmic"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        >
+        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 8.0;" 
+      >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
-          <a-asset-item id="hdriMap" src="textures/royal_esplanade_1k.hdr"></a-asset-item> 
+          <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
 
-        <a-light type="directional" color="#FFF" intensity="5" position="-1 2 3" shadow></a-light>
-        <a-light type="directional" color="#FFF" intensity="3" position="1 -2 -3" shadow></a-light>
-        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+        <a-light
+          type="directional"
+          color="#FFF"
+          intensity="3.0" 
+          position="-1 2 3"
+          shadow
+        ></a-light>
+        <a-light
+          type="directional"
+          color="#FFF"
+          intensity="1.5" 
+          position="1 -2 -3"
+          shadow
+        ></a-light>
 
-        <a-camera position="0 0 0" look-controls="enabled: false" raycaster="objects: .clickable" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
+        <a-light
+          type="ambient"
+          color="#FFF"
+          intensity="0.8" 
+        ></a-light>
+
+
+        <a-camera
+          position="0 0 0"
+          look-controls="enabled: false"
+          raycaster="objects: .clickable"
+          cursor="fuse: false; rayOrigin: mouse;"
+        ></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
           <a-entity
@@ -86,11 +110,7 @@
 
     <div id="tap-catcher"></div>
 
-    <script type="module">
-      // Import THREE.js and RGBELoader as modules
-      import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
-      import { RGBELoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/RGBELoader.js';
-
+    <script>
       window.addEventListener("DOMContentLoaded", () => {
         const sceneEl = document.querySelector("a-scene");
         const loader = document.getElementById("loader");
@@ -103,81 +123,51 @@
           setTimeout(() => loader.style.display = "none", 500);
         };
 
-        // crucial: Wait for the A-Frame scene to be fully loaded and initialized
-        // before attempting to access its renderer or Three.js scene object.
-        sceneEl.addEventListener("loaded", () => {
-          console.log("A-Frame Scene Loaded. Initializing Three.js environment.");
-          hideLoader(); // Hide loader now that the scene is loaded
+        if (sceneEl.hasLoaded) {
+          hideLoader();
+        } else {
+          sceneEl.addEventListener("loaded", hideLoader);
+        }
 
-          // THREE.js specific setup for HDRI environment map
-          // PMREMGenerator for pre-filtering the environment map for PBR
-          const pmremGenerator = new THREE.PMREMGenerator(sceneEl.renderer);
-          pmremGenerator.compileEquirectangularShader(); // Optimize for equirectangular maps
+        flux.addEventListener("model-loaded", () => {
+          console.log("Flux model loaded. Applying settings to fight Onyx black.");
+          flux.object3D.traverse((node) => {
+            if (node.isMesh) {
+              console.log("Processing mesh:", node.name, "Material type:", node.material.type);
+              if (node.material.isMeshStandardMaterial) {
+                // MATERIAL REFLECTION INTENSITY: BOOSTED HIGH TO COUNTER ONYX
+                node.material.envMapIntensity = 4.0; 
 
-          new RGBELoader()
-            .setDataType(THREE.UnsignedByteType) // Important for HDR file decoding
-            .load(
-              "textures/royal_esplanade_1k.hdr", // Path to your HDRI
-              (hdrEquirect) => {
-                // Convert equirectangular HDR to cube map texture for environment mapping
-                const envMap = pmremGenerator.fromEquirectangular(hdrEquirect).texture;
-                
-                // Set the environment map directly on the A-Frame scene's Three.js object
-                sceneEl.object3D.environment = envMap;
-                
-                // Dispose of the original equirectangular texture and generator to free memory
-                hdrEquirect.dispose();
-                pmremGenerator.dispose();
-                console.log("🌐 HDRI successfully loaded and set as scene environment.");
+                // PURE MIRROR CHROME properties
+                node.material.metalness = 1.0;
+                node.material.roughness = 0.01; // Keep very low for sharpest reflections
 
-                // Function to apply the environment map and PBR properties to the model's materials
-                const applyEnvMapToModel = () => {
-                  console.log("🌐 Applying HDRI and chrome properties to Flux model's materials");
-                  flux.object3D.traverse((node) => {
-                    if (node.isMesh && node.material.isMeshStandardMaterial) {
-                      node.material.envMap = envMap; // Assign the processed environment map
-                      node.material.envMapIntensity = 4; // Controls reflection intensity
-                      node.material.metalness = 1.0;    // Full metallic
-                      node.material.roughness = 0.05;   // Slightly less than pure mirror, more realistic
-                      node.material.color.set("white"); // Base color for chrome (critical for brightness)
-                      node.material.emissive.set("white"); // Emissive color
-                      node.material.emissiveIntensity = 0.1; // Subtle self-illumination
-                      node.material.needsUpdate = true; // Tell Three.js to update the material
-                      console.log("✅ Updated material for:", node.name, "with envMap:", !!node.material.envMap);
-                    } else if (node.isMesh) {
-                       console.warn("Material is not MeshStandardMaterial for:", node.name, ". Type:", node.material.type, ". Cannot apply PBR properties.");
-                    }
-                  });
-                };
+                node.material.color.set("white"); // Neutral base color for reflections
 
-                // Ensure the flux model is loaded before attempting to apply materials to it.
-                // This handles cases where the HDRI might load faster than the GLTF model.
-                if (flux.hasLoaded) {
-                  applyEnvMapToModel();
-                } else {
-                  flux.addEventListener("model-loaded", applyEnvMapToModel);
-                }
+                // EMISSIVE BRIGHTNESS: ZEROED OUT - crucial to avoid self-glow
+                node.material.emissive.set("black"); 
+                node.material.emissiveIntensity = 0; 
 
-              },
-              // Optional: Progress callback for the HDRI loader
-              (progress) => {
-                // console.log(`HDRI loading progress: ${(progress.loaded / progress.total * 100).toFixed(2)}%`);
-                // You could update the loader text here
-              },
-              // Optional: Error callback for the HDRI loader
-              (error) => {
-                console.error("🚫 Error loading HDRI file:", error);
-                // In case of an error, you might want to hide the loader anyway
-                // or show a specific error message to the user.
-                hideLoader(); 
+                node.material.needsUpdate = true;
+                console.log(
+                  "Applied chrome properties to",
+                  node.name,
+                  "Metalness:", node.material.metalness,
+                  "Roughness:", node.material.roughness,
+                  "EnvMapIntensity:", node.material.envMapIntensity,
+                  "Emissive Intensity:", node.material.emissiveIntensity,
+                  "Has envMap (via JS check):", !!node.material.envMap
+                );
+              } else {
+                console.warn(
+                  "Material is not MeshStandardMaterial, cannot apply PBR properties:",
+                  node.material.type
+                );
               }
-            );
+            }
+          });
         });
 
-        // Target Found/Lost and Tap Catcher events (these do not directly depend
-        // on the Three.js scene being fully initialized for their basic functionality,
-        // so they can remain here or also be placed inside the scene 'loaded' listener
-        // if their interactivity strictly requires the scene to be fully rendered).
         target.addEventListener("targetFound", () => {
           console.log("✅ Target Found — show Flux + interactivity");
           tapCatcher.style.display = "block";
