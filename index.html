@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR - Further Reduction (30% from Max)</title>
+    <title>Flux.001 — Mirrorborn AR - SIGNIFICANT REDUCTION</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
@@ -59,7 +59,7 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 7.2;"
+        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 5.8;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
@@ -69,21 +69,23 @@
         <a-light
           type="directional"
           color="#FFF"
-          intensity="3.6"
+          intensity="2.9"
           position="-1 2 3"
           shadow
         ></a-light>
         <a-light
           type="directional"
           color="#FFF"
-          intensity="2.2" position="1 -2 -3"
+          intensity="1.8"
+          position="1 -2 -3"
           shadow
         ></a-light>
 
         <a-light
           type="ambient"
           color="#FFF"
-          intensity="1.1" ></a-light>
+          intensity="0.9"
+        ></a-light>
 
 
         <a-camera
@@ -128,22 +130,22 @@
         }
 
         flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying brightness 30% removed from max.");
+          console.log("Flux model loaded. Applying brightness further reduced by 20%.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
               console.log("Processing mesh:", node.name, "Material type:", node.material.type);
               if (node.material.isMeshStandardMaterial) {
-                // MATERIAL REFLECTION INTENSITY: Reduced by another 10% (4 * 0.9 = 3.6)
-                node.material.envMapIntensity = 3.6;
+                // MATERIAL REFLECTION INTENSITY: Reduced by another 20% (3.6 * 0.8 = 2.88)
+                node.material.envMapIntensity = 2.9;
 
                 node.material.metalness = 1.0;
                 node.material.roughness = 0.01; // Keeping it very low for sharp chrome
 
                 node.material.color.set("white");
 
-                // EMISSIVE BRIGHTNESS: Reduced by another 10% (1.6 * 0.9 = 1.44)
+                // EMISSIVE BRIGHTNESS: Reduced by another 20% (1.4 * 0.8 = 1.12)
                 node.material.emissive.set("white");
-                node.material.emissiveIntensity = 1.4; // Rounded for simplicity
+                node.material.emissiveIntensity = 1.1;
 
                 node.material.needsUpdate = true;
                 console.log(
