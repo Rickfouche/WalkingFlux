@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR - Max External Brightness, Emissive 0.1</title>
+    <title>Flux.001 — Mirrorborn AR - Chrome HDRI Fix</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/RGBELoader.js"></script>
 
     <style>
       body {
@@ -59,41 +60,17 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 10;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
           <a-asset-item id="hdriMap" src="textures/lake_pier_1k.hdr"></a-asset-item>
         </a-assets>
 
-        <a-light
-          type="directional"
-          color="#FFF"
-          intensity="5"
-          position="-1 2 3"
-          shadow
-        ></a-light>
-        <a-light
-          type="directional"
-          color="#FFF"
-          intensity="3"
-          position="1 -2 -3"
-          shadow
-        ></a-light>
+        <a-light type="directional" color="#FFF" intensity="5" position="-1 2 3" shadow></a-light>
+        <a-light type="directional" color="#FFF" intensity="3" position="1 -2 -3" shadow></a-light>
+        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
 
-        <a-light
-          type="ambient"
-          color="#FFF"
-          intensity="1.5"
-        ></a-light>
-
-
-        <a-camera
-          position="0 0 0"
-          look-controls="enabled: false"
-          raycaster="objects: .clickable"
-          cursor="fuse: false; rayOrigin: mouse;"
-        ></a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: false" raycaster="objects: .clickable" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
           <a-entity
@@ -129,45 +106,48 @@
           sceneEl.addEventListener("loaded", hideLoader);
         }
 
-        flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying MAX EXTERNAL BRIGHTNESS, EMISSIVE 0.1.");
-          flux.object3D.traverse((node) => {
-            if (node.isMesh) {
-              console.log("Processing mesh:", node.name, "Material type:", node.material.type);
-              if (node.material.isMeshStandardMaterial) {
-                // MAX MATERIAL REFLECTION INTENSITY
-                node.material.envMapIntensity = 5;
+        let envMap = null;
 
-                // PURE MIRROR CHROME
-                node.material.metalness = 1.0;
-                node.material.roughness = 0.01;
+        const setupHDRI = () => {
+          const renderer = sceneEl.renderer;
+          const pmremGenerator = new THREE.PMREMGenerator(renderer);
+          pmremGenerator.compileEquirectangularShader();
 
-                node.material.color.set("white");
+          new THREE.RGBELoader()
+            .setDataType(THREE.UnsignedByteType)
+            .load("textures/lake_pier_1k.hdr", (hdrEquirect) => {
+              envMap = pmremGenerator.fromEquirectangular(hdrEquirect).texture;
+              hdrEquirect.dispose();
+              pmremGenerator.dispose();
 
-                // EMISSIVE BRIGHTNESS: Set to 0.1 (0.5 out of 10)
-                node.material.emissive.set("white"); // Emissive color white
-                node.material.emissiveIntensity = 0; // Very subtle emissive intensity
+              sceneEl.object3D.environment = envMap;
 
-                node.material.needsUpdate = true;
-                console.log(
-                  "Applied chrome properties to",
-                  node.name,
-                  "Metalness:", node.material.metalness,
-                  "Roughness:", node.material.roughness,
-                  "EnvMapIntensity:", node.material.envMapIntensity,
-                  "Emissive Color:", node.material.emissive.getHexString(),
-                  "Emissive Intensity:", node.material.emissiveIntensity,
-                  "Has envMap (via JS check):", !!node.material.envMap
-                );
+              if (flux.hasLoaded) {
+                applyEnvMap();
               } else {
-                console.warn(
-                  "Material is not MeshStandardMaterial, cannot apply PBR properties:",
-                  node.material.type
-                );
+                flux.addEventListener("model-loaded", applyEnvMap);
               }
+            });
+        };
+
+        const applyEnvMap = () => {
+          console.log("🌐 Applying HDRI Chrome");
+          flux.object3D.traverse((node) => {
+            if (node.isMesh && node.material.isMeshStandardMaterial) {
+              node.material.envMap = envMap;
+              node.material.envMapIntensity = 5;
+              node.material.metalness = 1.0;
+              node.material.roughness = 0.01;
+              node.material.color.set("white");
+              node.material.emissive.set("white");
+              node.material.emissiveIntensity = 0.1;
+              node.material.needsUpdate = true;
+              console.log("✅ Updated:", node.name);
             }
           });
-        });
+        };
+
+        setupHDRI();
 
         target.addEventListener("targetFound", () => {
           console.log("✅ Target Found — show Flux + interactivity");
@@ -186,3 +166,4 @@
     </script>
   </body>
 </html>
+
