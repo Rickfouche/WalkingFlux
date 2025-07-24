@@ -42,6 +42,7 @@
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
           <img id="businessCardImage" src="https://rickfouche.github.io/NeonAR1/png/Business%20Card4.png" />
+          <a-asset-item id="portalModel" src="https://rickfouche.github.io/NeonAR1/model/Portal.glb"></a-asset-item>
         </a-assets>
 
         <!-- 🔆 Lighting -->
@@ -62,30 +63,27 @@
           cursor="fuse: false; rayOrigin: mouse;"
         ></a-camera>
 
-        <!-- Target Tracking Group -->
+        <!-- Flux AR Model -->
         <a-entity mindar-image-target="targetIndex: 0">
-          
-          <!-- 🔳 Business Card Plane (beneath Flux) -->
+
+          <!-- Business Card Plane -->
           <a-plane
             src="#businessCardImage"
             position="0 0 0"
-            rotation="-90 0 0"
-            width="1"
             height="0.552"
-            material="shader: flat; transparent: true; opacity: 1"
+            width="1"
+            rotation="0 0 90"
+            material="shader: flat; transparent: true; opacity: 1; emissive: #00ffff; emissiveIntensity: 1"
           ></a-plane>
 
-          <!-- 🐻 Chrome Flux Model -->
           <a-entity
             id="flux"
             gltf-model="#fluxModel"
             position="0 0 0"
-            rotation="-90 0 0"
             scale="0.5 0.5 0.5"
             animation-mixer="clip: 1.; loop: repeat; play-all: true;"
             shadow
           ></a-entity>
-
         </a-entity>
       </a-scene>
     </div>
@@ -124,6 +122,7 @@
     </script>
   </body>
 </html>
+
 
 
 
