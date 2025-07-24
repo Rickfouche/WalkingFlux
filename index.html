@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR - Max External Brightness, Emissive 0.5</title>
+    <title>Flux.001 — Mirrorborn AR - Max External Brightness, Emissive 0.1</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
@@ -130,7 +130,7 @@
         }
 
         flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying MAX EXTERNAL BRIGHTNESS, EMISSIVE 0.5.");
+          console.log("Flux model loaded. Applying MAX EXTERNAL BRIGHTNESS, EMISSIVE 0.1.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
               console.log("Processing mesh:", node.name, "Material type:", node.material.type);
@@ -144,9 +144,9 @@
 
                 node.material.color.set("white");
 
-                // EMISSIVE BRIGHTNESS: Set to 0.5
+                // EMISSIVE BRIGHTNESS: Set to 0.1 (0.5 out of 10)
                 node.material.emissive.set("white"); // Emissive color white
-                node.material.emissiveIntensity = 0.5; // Emissive intensity at 0.5
+                node.material.emissiveIntensity = 0.1; // Very subtle emissive intensity
 
                 node.material.needsUpdate = true;
                 console.log(
