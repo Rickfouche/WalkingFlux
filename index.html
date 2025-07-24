@@ -40,6 +40,7 @@
         device-orientation-permission-ui="enabled: false"
       >
         <a-assets>
+           <img id="businessCardImage" src="https://rickfouche.github.io/NeonAR1/png/Business%20Card4.png" />
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
         </a-assets>
 
@@ -72,6 +73,15 @@
   animation-mixer="clip: 1.; loop: repeat; play-all: true;"
   shadow
 ></a-entity>
+           <a-entity mindar-image-target="targetIndex: 0">
+          <a-plane
+            src="#businessCardImage"
+            position="0 0 0"
+            height="0.552"
+            width="1"
+            rotation="0 0 90"
+            material="shader: flat; transparent: true; opacity: 1; emissive: #00ffff; emissiveIntensity: 1"
+          ></a-plane>
         </a-entity>
       </a-scene>
     </div>
