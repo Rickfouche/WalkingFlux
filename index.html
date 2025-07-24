@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flux.001 — Mirrorborn AR - DIALING BACK</title>
+    <title>Flux.001 — Mirrorborn AR - 20% Removed from Pitch White</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
@@ -59,7 +59,7 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
-        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 3;"
+        environment="lighting: physical; background: none; envMap: #hdriMap; intensity: 8;"
       >
         <a-assets>
           <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
@@ -69,20 +69,23 @@
         <a-light
           type="directional"
           color="#FFF"
-          intensity="1.8" position="-1 2 3"
+          intensity="4"
+          position="-1 2 3"
           shadow
         ></a-light>
         <a-light
           type="directional"
           color="#FFF"
-          intensity="0.8" position="1 -2 -3"
+          intensity="2.4"
+          position="1 -2 -3"
           shadow
         ></a-light>
 
         <a-light
           type="ambient"
           color="#FFF"
-          intensity="0.5" ></a-light>
+          intensity="1.2"
+        ></a-light>
 
 
         <a-camera
@@ -127,23 +130,22 @@
         }
 
         flux.addEventListener("model-loaded", () => {
-          console.log("Flux model loaded. Applying dialed back chrome material properties.");
+          console.log("Flux model loaded. Applying brightness 20% removed from max.");
           flux.object3D.traverse((node) => {
             if (node.isMesh) {
               console.log("Processing mesh:", node.name, "Material type:", node.material.type);
               if (node.material.isMeshStandardMaterial) {
-                // DIALED BACK: material reflection intensity
-                node.material.envMapIntensity = 2.5; // Slightly above original 2
+                // MATERIAL REFLECTION INTENSITY: Reduced by 20% from max (5 * 0.8 = 4)
+                node.material.envMapIntensity = 4;
 
                 node.material.metalness = 1.0;
-                // DIALED BACK: roughness for a polished but not perfect mirror look
-                node.material.roughness = 0.05; // A bit higher than 0.01
+                node.material.roughness = 0.01; // Keeping it very low for sharp chrome
 
                 node.material.color.set("white");
 
-                // DIALED BACK: emissive brightness (or remove entirely)
+                // EMISSIVE BRIGHTNESS: Reduced by 20% from max (2 * 0.8 = 1.6)
                 node.material.emissive.set("white");
-                node.material.emissiveIntensity = 0; // Set to 0 for no self-glow, or a very low value like 0.05
+                node.material.emissiveIntensity = 1.6;
 
                 node.material.needsUpdate = true;
                 console.log(
