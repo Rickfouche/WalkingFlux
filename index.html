@@ -39,11 +39,11 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
       >
-     <a-assets>
-  <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
-  <img id="businessCardImage" src="https://rickfouche.github.io/WalkingFlux/png/Business%20Card4.png" />
-</a-assets>
-
+        <a-assets>
+          <a-asset-item id="fluxModel" src="model/Flux.glb"></a-asset-item>
+          <a-asset-item id="fluxPlaceholder" src="model/StillFlux.glb"></a-asset-item>
+          <img id="businessCardImage" src="https://rickfouche.github.io/WalkingFlux/png/Business%20Card4.png" />
+        </a-assets>
 
         <!-- 🔆 Lighting -->
         <a-light type="directional" color="#ccffee" intensity="5113.5" position="-2 2 4" castShadow="true" target="#flux"></a-light>
@@ -65,7 +65,6 @@
 
         <!-- Flux AR Model -->
         <a-entity mindar-image-target="targetIndex: 0">
-
           <!-- Business Card Plane -->
           <a-plane
             src="#businessCardImage"
@@ -76,12 +75,12 @@
             material="shader: flat; transparent: true; opacity: 1; emissive: #00ffff; emissiveIntensity: 1"
           ></a-plane>
 
+          <!-- Placeholder loaded first -->
           <a-entity
             id="flux"
-            gltf-model="#fluxModel"
+            gltf-model="#fluxPlaceholder"
             position="0 0 0"
             scale="0.5 0.5 0.5"
-            animation-mixer="clip: 1.; loop: repeat; play-all: true;"
             shadow
           ></a-entity>
         </a-entity>
@@ -96,6 +95,8 @@
         const loader = document.getElementById("loader");
         const target = document.querySelector("[mindar-image-target]");
         const tapCatcher = document.getElementById("tap-catcher");
+        const fluxModel = document.getElementById("flux");
+        let modelSwapped = false;
 
         const hideLoader = () => {
           loader.style.opacity = "0";
@@ -108,6 +109,12 @@
         target.addEventListener("targetFound", () => {
           console.log("🎯 Target Found");
           tapCatcher.style.display = "block";
+
+          if (!modelSwapped) {
+            fluxModel.setAttribute("gltf-model", "#fluxModel");
+            fluxModel.setAttribute("animation-mixer", "clip: 1.; loop: repeat; play-all: true;");
+            modelSwapped = true;
+          }
         });
 
         target.addEventListener("targetLost", () => {
@@ -122,6 +129,7 @@
     </script>
   </body>
 </html>
+
 
 
 
